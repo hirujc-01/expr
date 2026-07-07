@@ -3,8 +3,8 @@
 
 #include <stddef.h>
 
-#include "node_list.h"
-#include "operator_list.h"
+#include "lists/node_list.h"
+#include "lists/operator_list.h"
 
 typedef struct ASTNode ASTNode;
 

@@ -3,8 +3,8 @@
 #include <string.h>
 
 #include "ast.h"
-#include "operator_list.h"
-#include "node_list.h"
+#include "lists/operator_list.h"
+#include "lists/node_list.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 

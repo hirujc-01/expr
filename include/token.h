@@ -1,6 +1,6 @@
 #ifndef TOKEN_H
 #define TOKEN_H
-#include "token_list.h"
+#include "lists/token_list.h"
 
 typedef enum
 {

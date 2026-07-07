@@ -3,6 +3,7 @@
 
 #include "parser.h"
 #include "ast.h"
+#include "semantic.h"
 
 int main(void)
 {
@@ -28,7 +29,9 @@ int main(void)
 
         if (tree != NULL)
         {
-            ast_print(tree, 0);
+            if (semantic_check(tree))
+                ast_print(tree,0);
+
             ast_free(tree);
         }
 
