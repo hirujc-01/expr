@@ -123,6 +123,17 @@ ASTNode *ast_call(const char *name,
     return node;
 }
 
+ASTNode *ast_assign(ASTNode *target,
+                    ASTNode *value)
+{
+    ASTNode *node = new_node(NODE_ASSIGN);
+
+    node->assign.target = target;
+    node->assign.value = value;
+
+    return node;
+}
+
 /*=========================================================
  * Debug printing
  *========================================================*/
@@ -149,6 +160,10 @@ static void print_node(ASTNode *node)
 
     case NODE_CALL:
         printf("CALL %s", node->call.name);
+        break;
+    
+    case NODE_ASSIGN:
+        printf("=");
         break;
 
     default:
@@ -204,6 +219,16 @@ static void ast_print_impl(ASTNode *node,
                            i + 1 == node->call.argc);
         }
         break;
+    
+    case NODE_ASSIGN:
+        ast_print_impl(node->assign.target,
+                    next_prefix,
+                    0);
+
+        ast_print_impl(node->assign.value,
+                    next_prefix,
+                    1);
+        break;
 
     default:
         break;
@@ -242,7 +267,10 @@ void ast_print(ASTNode *node, int indent)
                            i + 1 == node->call.argc);
         }
         break;
-
+    case NODE_ASSIGN:
+        ast_print_impl(node->assign.target, "", 0);
+        ast_print_impl(node->assign.value, "", 1);
+        break;  
     default:
         break;
     }

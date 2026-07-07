@@ -80,6 +80,14 @@ struct ASTNode
             size_t argc;
 
         } call;
+
+        /*Assignment node*/
+        struct
+        {
+            ASTNode *target;
+            ASTNode *value;
+        
+        } assign;
     };
 };
 
@@ -101,6 +109,9 @@ ASTNode *ast_unary(Operator op,
 ASTNode *ast_call(const char *name,
                   ASTNode **args,
                   size_t argc);
+
+ASTNode *ast_assign(ASTNode *target,
+                    ASTNode *value);
 
 /*=========================================================
  * Utilities

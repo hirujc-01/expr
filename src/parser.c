@@ -31,6 +31,7 @@ static ASTNode *unary(void);
 static ASTNode *primary(void);
 
 static ASTNode *function_call(const char *name);
+static ASTNode *assignment(void);
 
 
 /*=========================================================
@@ -461,6 +462,25 @@ static ASTNode *expression(void)
     return left;
 }
 
+/*=========================================================
+ * Variable assignment
+ *========================================================*/
+
+static ASTNode *assignment(void)
+{
+    ASTNode *left = expression();
+
+    if (current.type == TOKEN_ASSIGN)
+    {
+        next_token();
+
+        ASTNode *right = assignment();
+
+        return ast_assign(left, right);
+    }
+
+    return left;
+}
 
 /*=========================================================
  * Public parser entry
@@ -475,8 +495,7 @@ ASTNode *parse(const char *input)
 
     next_token();
 
-
-    ASTNode *tree = expression();
+    ASTNode *tree = assignment();
 
 
     if (parse_error)

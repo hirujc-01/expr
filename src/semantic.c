@@ -14,14 +14,25 @@ typedef struct
 
 } FunctionInfo;
 
-#define FUNCTION_LIST \
-    X(sin,  1, 1) \
-    X(cos,  1, 1) \
-    X(tan,  1, 1) \
-    X(sqrt, 1, 1) \
-    X(pow,  2, 2) \
-    X(max,  1, -1) \
-    X(min,  1, -1)
+
+/*=========================================================
+ * Function table (generated from X-macro)
+ *========================================================*/
+
+static const FunctionInfo functions[] =
+{
+#define X(name, min, max) \
+    { #name, min, max },
+
+    FUNCTION_LIST
+
+#undef X
+};
+
+
+/*=========================================================
+ * Function lookup
+ *========================================================*/
 
 static const FunctionInfo *find_function(const char *name)
 {
@@ -38,6 +49,11 @@ static const FunctionInfo *find_function(const char *name)
 
     return NULL;
 }
+
+
+/*=========================================================
+ * AST semantic checker
+ *========================================================*/
 
 static int check_node(ASTNode *node)
 {
@@ -123,10 +139,37 @@ static int check_node(ASTNode *node)
     }
 
 
+    case NODE_ASSIGN:
+        /*
+            Assignment:
+                x = expression
+
+            Target must be an identifier.
+            Value must be valid.
+        */
+
+        if (node->assign.target->type != NODE_IDENTIFIER)
+        {
+            fprintf(stderr,
+                    "Left side of assignment must be a variable\n");
+
+            return 0;
+        }
+
+
+        return check_node(node->assign.value);
+
+
+
     default:
         return 0;
     }
 }
+
+
+/*=========================================================
+ * Public API
+ *========================================================*/
 
 int semantic_check(ASTNode *node)
 {
