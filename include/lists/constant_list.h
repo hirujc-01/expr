@@ -1,0 +1,11 @@
+#ifndef CONSTANT_LIST_H
+#define CONSTANT_LIST_H
+
+
+#define CONSTANT_LIST \
+    X(pi, 3.14159265358979323846) \
+    X(e,  2.71828182845904523536) \
+    X(phi, 1.61803398874989484820)
+
+
+#endif

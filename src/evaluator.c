@@ -5,6 +5,7 @@
 #include "evaluator.h"
 #include "function_table.h"
 #include "lists/function_list.h"
+#include "angle_mode.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -15,6 +16,8 @@ static double eval_builtin_##name(const double *args, \
 FUNCTION_LIST
 
 #undef X
+
+
 
 static int eval_node(ASTNode *node,
                      SymbolTable *symbols,
@@ -28,7 +31,7 @@ static double eval_builtin_sin(const double *args,
                                size_t argc)
 {
     (void)argc;
-    return sin(args[0]);
+    return sin(to_radians(args[0]));
 }
 
 
@@ -36,7 +39,7 @@ static double eval_builtin_cos(const double *args,
                                size_t argc)
 {
     (void)argc;
-    return cos(args[0]);
+    return cos(to_radians(args[0]));
 }
 
 
@@ -44,7 +47,7 @@ static double eval_builtin_tan(const double *args,
                                size_t argc)
 {
     (void)argc;
-    return tan(args[0]);
+    return tan(to_radians(args[0]));
 }
 
 
@@ -243,19 +246,28 @@ static int eval_node(ASTNode *node,
 
 
     case NODE_IDENTIFIER:
-
-        if (!symbol_get(symbols,
-                        node->identifier.name,
-                        result))
+    {
+        if (symbol_get(symbols,
+                    node->identifier.name,
+                    result))
         {
-            fprintf(stderr,
-                    "Undefined variable '%s'\n",
-                    node->identifier.name);
-
-            return 0;
+            return 1;
         }
 
-        return 1;
+
+        if (constant_get(node->identifier.name,
+                        result))
+        {
+            return 1;
+        }
+
+
+        fprintf(stderr,
+                "Undefined variable '%s'\n",
+                node->identifier.name);
+
+        return 0;
+    }
 
 
 

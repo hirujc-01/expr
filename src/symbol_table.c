@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "symbol_table.h"
-
+#include "lists/constant_list.h"
 
 #define INITIAL_CAPACITY 16
 
@@ -158,4 +158,41 @@ int symbol_get(SymbolTable *table,
 
 
     return 1;
+}
+
+typedef struct
+{
+    const char *name;
+    double value;
+
+} ConstantInfo;
+
+
+static const ConstantInfo constants[] =
+{
+#define X(name, value) \
+    { #name, value },
+
+    CONSTANT_LIST
+
+#undef X
+};
+
+
+int constant_get(const char *name, double *value)
+{
+    size_t count =
+        sizeof(constants) / sizeof(constants[0]);
+
+
+    for (size_t i = 0; i < count; i++)
+    {
+        if (strcmp(constants[i].name, name) == 0)
+        {
+            *value = constants[i].value;
+            return 1;
+        }
+    }
+
+    return 0;
 }

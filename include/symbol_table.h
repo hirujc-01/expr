@@ -36,5 +36,7 @@ int symbol_get(SymbolTable *table,
                const char *name,
                double *value);
 
-
+int constant_get(const char *name,
+                 double *value);
+               
 #endif

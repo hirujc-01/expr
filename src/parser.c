@@ -121,7 +121,6 @@ static ASTNode *primary(void)
             return function_call(name);
         }
 
-
         return ast_identifier(name);
     }
 

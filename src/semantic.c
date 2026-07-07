@@ -4,6 +4,7 @@
 #include "semantic.h"
 #include "function_table.h"
 #include "lists/function_list.h"
+#include "symbol_table.h"
 
 
 /*=========================================================
@@ -131,13 +132,15 @@ static int check_node(ASTNode *node)
 
 
     case NODE_ASSIGN:
+    {
         /*
             Assignment:
-                x = expression
+                variable = expression
 
             Target must be an identifier.
-            Value must be valid.
+            Constants cannot be overwritten.
         */
+
 
         if (node->assign.target->type != NODE_IDENTIFIER)
         {
@@ -148,7 +151,21 @@ static int check_node(ASTNode *node)
         }
 
 
+        double dummy;
+
+        if (constant_get(node->assign.target->identifier.name,
+                        &dummy))
+        {
+            fprintf(stderr,
+                    "Cannot assign to constant '%s'\n",
+                    node->assign.target->identifier.name);
+
+            return 0;
+        }
+
+
         return check_node(node->assign.value);
+    }   
 
 
 
