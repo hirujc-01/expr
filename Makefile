@@ -9,7 +9,7 @@ CFLAGS := -Wall -Wextra -Wpedantic -std=c17 -g \
            -fsanitize=address,undefined \
            -Iinclude
 
-LDFLAGS := -fsanitize=address,undefined
+LDFLAGS := -fsanitize=address,undefined -lm
 
 .PHONY: all clean run debug release
 
@@ -31,7 +31,7 @@ debug: $(TARGET)
 	gdb $(TARGET)
 
 release: CFLAGS := -Wall -Wextra -Wpedantic -std=c17 -O2 -Iinclude
-release: LDFLAGS :=
+release: LDFLAGS := -lm
 release: clean all
 
 clean:

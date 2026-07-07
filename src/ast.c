@@ -303,6 +303,11 @@ void ast_free(ASTNode *node)
         free(node->call.args);
         break;
 
+    case NODE_ASSIGN:
+        ast_free(node->assign.target);
+        ast_free(node->assign.value);
+        break;
+
     default:
         break;
     }

@@ -4,10 +4,15 @@
 #include "parser.h"
 #include "ast.h"
 #include "semantic.h"
+#include "evaluator.h"
+#include "symbol_table.h"
 
 int main(void)
 {
     char input[256];
+    SymbolTable symbols;
+
+    symbol_init(&symbols);
 
     puts("Math Parser");
     puts("Type 'quit' to exit.\n");
@@ -30,13 +35,24 @@ int main(void)
         if (tree != NULL)
         {
             if (semantic_check(tree))
-                ast_print(tree,0);
+            {
+                double result;
+
+                if (evaluate(tree,
+                             &symbols,
+                             &result))
+                {
+                    printf("%g\n", result);
+                }
+            }
 
             ast_free(tree);
         }
 
         putchar('\n');
     }
+
+    symbol_free(&symbols);
 
     return 0;
 }

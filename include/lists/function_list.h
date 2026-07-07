@@ -1,6 +1,7 @@
 #ifndef FUNCTION_LIST_H
 #define FUNCTION_LIST_H
 
+
 #define FUNCTION_LIST \
     X(sin,  1, 1) \
     X(cos,  1, 1) \
@@ -10,4 +11,5 @@
     X(max,  1, -1) \
     X(min,  1, -1)
 
-#endif 
+
+#endif

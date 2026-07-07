@@ -97,13 +97,12 @@ int symbol_set(SymbolTable *table,
     */
     if (table->count >= table->capacity)
     {
-        table->capacity *= 2;
-
+        size_t new_capacity = table->capacity * 2;
 
         Symbol *new_symbols =
             realloc(table->symbols,
                     sizeof(Symbol) *
-                    table->capacity);
+                    new_capacity);
 
 
         if (new_symbols == NULL)
@@ -111,6 +110,7 @@ int symbol_set(SymbolTable *table,
 
 
         table->symbols = new_symbols;
+        table->capacity = new_capacity;
     }
 
 

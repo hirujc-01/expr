@@ -2,17 +2,8 @@
 #include <string.h>
 
 #include "semantic.h"
+#include "function_table.h"
 #include "lists/function_list.h"
-
-
-typedef struct
-{
-    const char *name;
-
-    int min_args;
-    int max_args;
-
-} FunctionInfo;
 
 
 /*=========================================================
@@ -22,7 +13,7 @@ typedef struct
 static const FunctionInfo functions[] =
 {
 #define X(name, min, max) \
-    { #name, min, max },
+    { #name, min, max, NULL },
 
     FUNCTION_LIST
 
