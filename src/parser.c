@@ -30,7 +30,7 @@ static ASTNode *factor(void);
 static ASTNode *unary(void);
 static ASTNode *primary(void);
 
-static ASTNode *function_call(const char *name);
+static ASTNode *function_call(FunctionID id);
 static ASTNode *assignment(void);
 
 
@@ -70,6 +70,19 @@ static int expect(TokenType type)
     next_token();
 
     return 1;
+}
+
+static FunctionID lookup_function(const char *name)
+{
+#define X(fname,min,max) \
+    if (strcmp(name, #fname) == 0) \
+        return FUNC_##fname;
+
+    FUNCTION_LIST
+
+#undef X
+
+    return FUNC_INVALID;
 }
 
 /*=========================================================
@@ -118,7 +131,19 @@ static ASTNode *primary(void)
          */
         if (current.type == TOKEN_LPAREN)
         {
-            return function_call(name);
+            FunctionID id = lookup_function(name);
+
+            if (id == FUNC_INVALID)
+            {
+                fprintf(stderr,
+                        "Unknown function '%s'\n",
+                        name);
+
+                parse_error = 1;
+                return NULL;
+            }
+
+            return function_call(id);
         }
 
         return ast_identifier(name);
@@ -169,7 +194,7 @@ static ASTNode *primary(void)
  * Function calls
  *========================================================*/
 
-static ASTNode *function_call(const char *name)
+static ASTNode *function_call(FunctionID id)
 {
     /*
         Current token is '('
@@ -259,7 +284,7 @@ static ASTNode *function_call(const char *name)
     }
 
 
-    return ast_call(name,
+    return ast_call(id,
                     args,
                     argc);
 }
@@ -270,6 +295,16 @@ static ASTNode *function_call(const char *name)
 
 static ASTNode *unary(void)
 {
+    if (current.type == TOKEN_PLUS)
+    {
+        next_token();
+
+        /*
+            Unary plus does nothing.
+        */
+        return unary();
+    }
+
     if (current.type == TOKEN_MINUS)
     {
         next_token();
@@ -284,7 +319,6 @@ static ASTNode *unary(void)
 
     return primary();
 }
-
 
 /*=========================================================
  * Power

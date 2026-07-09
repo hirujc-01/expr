@@ -26,6 +26,13 @@ static const char *node_names[] =
 #undef X
 };
 
+static const char *function_names[] =
+{
+#define X(name,min,max) #name,
+    FUNCTION_LIST
+#undef X
+};
+
 const char *operator_name(Operator op)
 {
     if ((unsigned)op >= ARRAY_SIZE(operator_names))
@@ -107,16 +114,13 @@ ASTNode *ast_unary(Operator op,
     return node;
 }
 
-ASTNode *ast_call(const char *name,
+ASTNode *ast_call(FunctionID id,
                   ASTNode **args,
                   size_t argc)
 {
     ASTNode *node = new_node(NODE_CALL);
 
-    strncpy(node->call.name,
-            name,
-            sizeof(node->call.name) - 1);
-
+    node->call.id = id;
     node->call.args = args;
     node->call.argc = argc;
 
@@ -159,7 +163,8 @@ static void print_node(ASTNode *node)
         break;
 
     case NODE_CALL:
-        printf("CALL %s", node->call.name);
+        printf("CALL %s",
+                function_names[node->call.id]);
         break;
     
     case NODE_ASSIGN:

@@ -2,6 +2,7 @@
 #define FUNCTION_TABLE_H
 
 #include <stddef.h>
+#include "lists/function_list.h"
 
 
 typedef double (*BuiltinFunction)(const double *args,
@@ -19,5 +20,14 @@ typedef struct
 
 } FunctionInfo;
 
+typedef enum
+{
+#define X(name,min,max) FUNC_##name,
+    FUNCTION_LIST
+#undef X
+
+    FUNC_INVALID
+
+} FunctionID;
 
 #endif

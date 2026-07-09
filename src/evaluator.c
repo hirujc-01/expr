@@ -128,18 +128,12 @@ static const FunctionInfo functions[] =
  * Find function
  *========================================================*/
 
-static const FunctionInfo *find_function(const char *name)
+static const FunctionInfo *find_function(FunctionID id)
 {
-    for (size_t i = 0;
-         i < ARRAY_SIZE(functions);
-         i++)
-    {
-        if (strcmp(functions[i].name, name) == 0)
-            return &functions[i];
-    }
+    if (id >= ARRAY_SIZE(functions))
+        return NULL;
 
-
-    return NULL;
+    return &functions[id];
 }
 
 
@@ -155,16 +149,15 @@ static int eval_call(ASTNode *node,
 
 
     const FunctionInfo *function =
-        find_function(node->call.name);
+        find_function(node->call.id);
 
 
     if (function == NULL)
     {
         fprintf(stderr,
-                "Unknown function '%s'\n",
-                node->call.name);
-
-        return 0;
+                "Unknown function (id=%u)\n",
+                (unsigned)node->call.id);
+                return 0;
     }
 
 

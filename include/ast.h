@@ -5,6 +5,7 @@
 
 #include "lists/node_list.h"
 #include "lists/operator_list.h"
+#include "function_table.h"
 
 typedef struct ASTNode ASTNode;
 
@@ -74,7 +75,7 @@ struct ASTNode
         /* Function call */
         struct
         {
-            char name[64];
+            FunctionID id;
 
             ASTNode **args;
             size_t argc;
@@ -106,7 +107,7 @@ ASTNode *ast_binary(Operator op,
 ASTNode *ast_unary(Operator op,
                    ASTNode *child);
 
-ASTNode *ast_call(const char *name,
+ASTNode *ast_call(FunctionID id,
                   ASTNode **args,
                   size_t argc);
 

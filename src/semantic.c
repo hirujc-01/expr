@@ -26,20 +26,12 @@ static const FunctionInfo functions[] =
  * Function lookup
  *========================================================*/
 
-static const FunctionInfo *find_function(const char *name)
+static const FunctionInfo *find_function(FunctionID id)
 {
-    size_t count =
-        sizeof(functions) / sizeof(functions[0]);
+    if ((size_t)id >= sizeof(functions) / sizeof(functions[0]))
+        return NULL;
 
-
-    for (size_t i = 0; i < count; i++)
-    {
-        if (strcmp(functions[i].name, name) == 0)
-            return &functions[i];
-    }
-
-
-    return NULL;
+    return &functions[id];
 }
 
 
@@ -82,14 +74,14 @@ static int check_node(ASTNode *node)
     case NODE_CALL:
     {
         const FunctionInfo *fn =
-            find_function(node->call.name);
+            find_function(node->call.id);
 
 
         if (fn == NULL)
         {
             fprintf(stderr,
-                    "Unknown function '%s'\n",
-                    node->call.name);
+                    "Unknown function (id=%u)\n",
+                    (unsigned)node->call.id);
 
             return 0;
         }

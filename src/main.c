@@ -8,6 +8,7 @@
 #include "symbol_table.h"
 #include "color.h"
 #include "angle_mode.h"
+#include "optimizer.h"
 
 static int handle_command(const char *input)
 {
@@ -17,43 +18,55 @@ static int handle_command(const char *input)
         return 1;
     }
 
-
-    if (strcmp(input, "mode deg") == 0)
+    if (strncmp(input, "mode", 4) == 0)
     {
-        set_angle_mode(ANGLE_DEG);
+        if (strcmp(input, "mode") == 0)
+        {
+            printf(BOLD COLOR_CYAN
+                   "Current angle mode: %s\n"
+                   COLOR_RESET,
+                   get_angle_mode() == ANGLE_DEG ?
+                   "degrees" : "radians");
 
-        printf(BOLD COLOR_GREEN
-               "Angle mode: degrees\n"
+            return 2;
+        }
+
+        if (strcmp(input, "mode deg") == 0)
+        {
+            set_angle_mode(ANGLE_DEG);
+
+            printf(BOLD COLOR_GREEN
+                   "Angle mode: degrees\n"
+                   COLOR_RESET);
+
+            return 2;
+        }
+
+        if (strcmp(input, "mode rad") == 0)
+        {
+            set_angle_mode(ANGLE_RAD);
+
+            printf(BOLD COLOR_GREEN
+                   "Angle mode: radians\n"
+                   COLOR_RESET);
+
+            return 2;
+        }
+
+        printf(BOLD COLOR_RED
+               "Unknown mode.\n"
                COLOR_RESET);
 
-        return 2;
-    }
-
-
-    if (strcmp(input, "mode rad") == 0)
-    {
-        set_angle_mode(ANGLE_RAD);
-
+        printf("Available modes:\n");
         printf(BOLD COLOR_GREEN
-               "Angle mode: radians\n"
-               COLOR_RESET);
+                "  mode rad\n"
+                COLOR_RESET);
+        printf(BOLD COLOR_GREEN
+                "  mode deg\n"
+                COLOR_RESET);
 
         return 2;
     }
-
-
-    if (strcmp(input, "mode") == 0)
-    {
-        printf(BOLD COLOR_CYAN
-               "Current angle mode: %s\n"
-               COLOR_RESET,
-               get_angle_mode() == ANGLE_DEG
-               ? "degrees"
-               : "radians");
-
-        return 2;
-    }
-
 
     return 0;
 }
@@ -118,13 +131,18 @@ int main(void)
 
 
         printf("\n" BOLD COLOR_BLUE
-               "Syntax Tree:\n"
-               COLOR_RESET);
-
+            "Syntax Tree:\n"
+            COLOR_RESET);
 
         ast_print(tree,0);
 
+        tree = optimize(tree);
 
+        printf("\n" BOLD COLOR_CYAN
+            "Optimized Tree:\n"
+            COLOR_RESET);
+
+        ast_print(tree,0);
 
         if (semantic_check(tree))
         {
