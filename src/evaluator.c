@@ -1,140 +1,14 @@
 #include <math.h>
 #include <stdio.h>
-#include <string.h>
 
 #include "evaluator.h"
-#include "function_table.h"
-#include "lists/function_list.h"
-#include "angle_mode.h"
+#include "builtins.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
-
-#define X(name, min, max) \
-static double eval_builtin_##name(const double *args, \
-                                  size_t argc);
-
-FUNCTION_LIST
-
-#undef X
-
-
 
 static int eval_node(ASTNode *node,
                      SymbolTable *symbols,
                      double *result);
-
-/*=========================================================
- * Builtin functions
- *========================================================*/
-
-static double eval_builtin_sin(const double *args,
-                               size_t argc)
-{
-    (void)argc;
-    return sin(to_radians(args[0]));
-}
-
-
-static double eval_builtin_cos(const double *args,
-                               size_t argc)
-{
-    (void)argc;
-    return cos(to_radians(args[0]));
-}
-
-
-static double eval_builtin_tan(const double *args,
-                               size_t argc)
-{
-    (void)argc;
-    return tan(to_radians(args[0]));
-}
-
-
-static double eval_builtin_sqrt(const double *args,
-                                size_t argc)
-{
-    (void)argc;
-    return sqrt(args[0]);
-}
-
-
-static double eval_builtin_pow(const double *args,
-                               size_t argc)
-{
-    (void)argc;
-    return pow(args[0], args[1]);
-}
-
-
-static double eval_builtin_max(const double *args,
-                               size_t argc)
-{
-    if (argc == 0)
-        return NAN;
-
-
-    double result = args[0];
-
-
-    for (size_t i = 1; i < argc; i++)
-    {
-        if (args[i] > result)
-            result = args[i];
-    }
-
-
-    return result;
-}
-
-
-static double eval_builtin_min(const double *args,
-                               size_t argc)
-{
-    if (argc == 0)
-        return NAN;
-
-
-    double result = args[0];
-
-
-    for (size_t i = 1; i < argc; i++)
-    {
-        if (args[i] < result)
-            result = args[i];
-    }
-
-
-    return result;
-}
-
-
-/*=========================================================
- * Function table
- *========================================================*/
-
-static const FunctionInfo functions[] =
-{
-#define X(name, min, max) \
-    { #name, min, max, eval_builtin_##name },
-
-    FUNCTION_LIST
-
-#undef X
-};
-
-
-/*=========================================================
- * Find function
- *========================================================*/
-
-static const FunctionInfo *find_function(FunctionID id)
-{
-    if (id >= ARRAY_SIZE(functions))
-        return NULL;
-
-    return &functions[id];
-}
 
 
 /*=========================================================
@@ -148,17 +22,16 @@ static int eval_call(ASTNode *node,
     double args[64];
 
 
-    const FunctionInfo *function =
-        find_function(node->call.id);
-
-
-    if (function == NULL)
+    if (node->call.id >= FUNC_INVALID)
     {
         fprintf(stderr,
                 "Unknown function (id=%u)\n",
                 (unsigned)node->call.id);
-                return 0;
+        return 0;
     }
+
+    const FunctionInfo *function =
+        &functions[node->call.id];
 
 
     if (node->call.argc <
@@ -209,8 +82,9 @@ static int eval_call(ASTNode *node,
 
 
     *result =
-        function->function(args,
-                           node->call.argc);
+        builtin_call(node->call.id,
+                    args,
+                    node->call.argc);
 
 
     return 1;

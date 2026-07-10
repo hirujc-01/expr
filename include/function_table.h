@@ -4,18 +4,14 @@
 #include <stddef.h>
 #include "lists/function_list.h"
 
-
 typedef double (*BuiltinFunction)(const double *args,
                                   size_t argc);
-
 
 typedef struct
 {
     const char *name;
-
     int min_args;
     int max_args;
-
     BuiltinFunction function;
 
 } FunctionInfo;
@@ -29,5 +25,13 @@ typedef enum
     FUNC_INVALID
 
 } FunctionID;
+
+/* Shared function table */
+extern const FunctionInfo functions[];
+
+/* Shared dispatcher */
+double builtin_call(FunctionID id,
+                    const double *args,
+                    size_t argc);
 
 #endif

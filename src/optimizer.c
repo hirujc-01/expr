@@ -141,9 +141,14 @@ static ASTNode *replace_with_child(ASTNode *node,
     return child;
 }
 
+/*=========================================================
+ * Prototypes
+ *========================================================*/
+
 static ASTNode *fold_binary(ASTNode *node);
 static ASTNode *fold_unary(ASTNode *node);
 static ASTNode *fold_identity(ASTNode *node);
+static ASTNode *fold_call(ASTNode *node);
 
 static ASTNode *fold_binary(ASTNode *node)
 {
@@ -347,6 +352,35 @@ static ASTNode *fold_identity(ASTNode *node)
     return node;
 }
 
+static ASTNode *fold_call(ASTNode *node)
+{
+    if (node->type != NODE_CALL)
+        return node;
+
+    for (size_t i = 0; i < node->call.argc; i++)
+    {
+        if (!is_number(node->call.args[i]))
+            return node;
+    }
+
+    double args[64];
+
+    for (size_t i = 0; i < node->call.argc; i++)
+    {
+        args[i] = node->call.args[i]->number.value;
+    }
+
+    extern const FunctionInfo functions[];
+
+    const FunctionInfo *fn =
+        &functions[node->call.id];
+
+    double value =
+        fn->function(args, node->call.argc);
+
+    return replace_with_number(node, value);
+}
+
 ASTNode *optimize(ASTNode *node)
 {
     if (node == NULL)
@@ -377,17 +411,16 @@ ASTNode *optimize(ASTNode *node)
         return fold_unary(node);
 
     case NODE_CALL:
-        printf("argc = %zu\n", node->call.argc);
-        printf("args = %p\n", (void *)node->call.args); 
+
         for (size_t i = 0;
-             i < node->call.argc;
-             i++)
+            i < node->call.argc;
+            i++)
         {
             node->call.args[i] =
                 optimize(node->call.args[i]);
         }
 
-        return node;
+        return fold_call(node);
 
     case NODE_ASSIGN:
 
