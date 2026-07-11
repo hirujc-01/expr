@@ -364,8 +364,7 @@ static ASTNode *factor(void)
 
 static int starts_implicit_mul(TokenType type)
 {
-    return type == TOKEN_NUMBER ||
-           type == TOKEN_IDENTIFIER ||
+    return type == TOKEN_IDENTIFIER ||
            type == TOKEN_LPAREN;
 }
 

@@ -3,47 +3,81 @@ CC := gcc
 TARGET := build/mathparser
 TEST_TARGET := build/tests
 
-SRC := $(wildcard src/*.c)
-OBJ := $(patsubst src/%.c,build/obj/%.o,$(SRC))
+#
+# Sources
+#
 
-TEST_SRC := $(wildcard tests/*.c)
+APP_SRC := $(shell find src -name "*.c")
+APP_OBJ := $(patsubst src/%.c,build/obj/%.o,$(APP_SRC))
+
+#
+# For tests we don't want src/main.c
+#
+
+CORE_SRC := $(filter-out src/main.c,$(APP_SRC))
+CORE_OBJ := $(patsubst src/%.c,build/obj/%.o,$(CORE_SRC))
+
+TEST_SRC := $(shell find tests -name "*.c")
 TEST_OBJ := $(patsubst tests/%.c,build/obj/tests/%.o,$(TEST_SRC))
 
-CFLAGS := -Wall -Wextra -Wpedantic -std=c17 -g \
-          -fsanitize=address,undefined \
-          -Iinclude
+#
+# Flags
+#
 
-LDFLAGS := -fsanitize=address,undefined -lm
+CFLAGS := \
+	-Wall \
+	-Wextra \
+	-Wpedantic \
+	-std=c17 \
+	-g \
+	-fsanitize=address,undefined \
+	-Iinclude \
+	-Itests/include
 
-.PHONY: all clean run debug release test
+LDFLAGS := \
+	-fsanitize=address,undefined \
+	-lm
+
+.PHONY: all clean run debug release test build
 
 all: $(TARGET)
 
+#
+# Create build directory
+#
+
 build:
-	mkdir -p build build/obj build/obj/tests
+	@mkdir -p build
+
+#
+# Compile application sources
+#
+
+build/obj/%.o: src/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+#
+# Compile test sources
+#
+
+build/obj/tests/%.o: tests/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 #
 # Main executable
 #
 
-$(TARGET): build $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS)
-
-build/obj/%.o: src/%.c | build
-	$(CC) $(CFLAGS) -c $< -o $@
+$(TARGET): build $(APP_OBJ)
+	$(CC) $(APP_OBJ) -o $@ $(LDFLAGS)
 
 #
-# Unit tests
+# Test executable
 #
 
-$(TEST_TARGET): build $(OBJ) $(TEST_OBJ)
-	$(CC) $(OBJ) $(TEST_OBJ) -o $@ $(LDFLAGS)
-
-build/obj/tests/%.o: tests/%.c | build
-	$(CC) $(CFLAGS) -c $< -o $@
-
-test: $(TEST_TARGET)
-	./$(TEST_TARGET)
+$(TEST_TARGET): build $(CORE_OBJ) $(TEST_OBJ)
+	$(CC) $(CORE_OBJ) $(TEST_OBJ) -o $@ $(LDFLAGS)
 
 #
 # Convenience targets
@@ -52,11 +86,23 @@ test: $(TEST_TARGET)
 run: $(TARGET)
 	./$(TARGET)
 
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
 debug: $(TARGET)
 	gdb $(TARGET)
 
-release: CFLAGS := -Wall -Wextra -Wpedantic -std=c17 -O2 -Iinclude
+release: CFLAGS := \
+	-Wall \
+	-Wextra \
+	-Wpedantic \
+	-std=c17 \
+	-O2 \
+	-Iinclude \
+	-Itests/include
+
 release: LDFLAGS := -lm
+
 release: clean all
 
 clean:

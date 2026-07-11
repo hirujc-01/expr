@@ -1,28 +1,16 @@
-#include "test.h"
+#include "test_commons.h"
 
-/* evaluator */
-int test_basic_add(void);
-int test_precedence(void);
-int test_assignment(void);
-int test_power(void);
-int test_sqrt(void);
+#include "runtime_tests.h"
+#include "lexer_tests.h"
+#include "parser_tests.h"
+#include "optimizer_tests.h"
 
 int main(void)
 {
-    run_test("basic_add",
-             test_basic_add);
-
-    run_test("precedence",
-             test_precedence);
-
-    run_test("assignment",
-             test_assignment);
-
-    run_test("power",
-             test_power);
-
-    run_test("sqrt",
-             test_sqrt);
+    run_runtime_tests();
+    run_lexer_tests();
+    run_parser_tests();
+    run_optimizer_tests();
 
     print_summary();
 
